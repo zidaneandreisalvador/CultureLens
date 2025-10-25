@@ -1,20 +1,19 @@
 <?php
 // config/db_connect.php
 
-$host = "dpg-d3u8g875r7bs73fb4tmg-a";       // Render PostgreSQL host
-$port = "5432";                             // Default PostgreSQL port
-$dbname = "culturelens_db";                 // Your Render DB name
-$user = "culturelens_db_user";              // Your Render DB username
-$password = "DX1CSLlKlqOQJ4fzyGuIPywCyeQu1ZHm"; // Your Render DB password
+$host = "localhost";      // Database host
+$user = "root";           // Default XAMPP user
+$pass = "";               // Default password (empty)
+$dbname = "culturelens_db"; // The database you created
 
-// Create connection using pg_connect()
-$conn = pg_connect("host=$host port=$port dbname=$dbname user=$user password=$password");
+// Create connection
+$conn = new mysqli($host, $user, $pass, $dbname);
 
 // Check connection
-if (!$conn) {
+if ($conn->connect_error) {
     die(json_encode([
         "success" => false,
-        "message" => "PostgreSQL connection failed: " . pg_last_error()
+        "message" => "Database connection failed: " . $conn->connect_error
     ]));
 }
 ?>
