@@ -6,15 +6,10 @@ $user = "culturelens_db_user";           // Default XAMPP user
 $pass = "DX1CSLlKlqOQJ4fzyGuIPywCyeQu1ZHm";               // Default password (empty)
 $dbname = "culturelens_db"; // The database you created
 
-// Create connection
-$conn = new mysqli($host, $user, $pass, $dbname);
+$conn = pg_connect("host=$host port=$port dbname=$dbname user=$user password=$password");
 
-// Check connection
-if ($conn->connect_error) {
-    die(json_encode([
-        "success" => false,
-        "message" => "Database connection failed: " . $conn->connect_error
-    ]));
+if (!$conn) {
+    die("Connection failed: " . pg_last_error());
 }
 ?>
 
