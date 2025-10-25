@@ -31,15 +31,21 @@ if (empty($inputText) || empty($outputText)) {
     exit;
 }
 
-$stmt = $conn->prepare("INSERT INTO TranslationLog (TravelerID, InputText, OutputText, SourceLanguage, TargetLanguage, DateTime)
-                        VALUES (?, ?, ?, ?, ?, NOW())");
-$stmt->bind_param("issss", $userData->user_id, $inputText, $outputText, $sourceLanguage, $targetLanguage);
+$sql = 'INSERT INTO "TranslationLog" ("TravelerID", "InputText", "OutputText", "SourceLanguage", "TargetLanguage", "DateTime")
+        VALUES ($1, $2, $3, $4, $5, NOW())';
+$result = pg_query_params($conn, $sql, [
+    $userData->user_id,
+    $inputText,
+    $outputText,
+    $sourceLanguage,
+    $targetLanguage
+]);
 
-if ($stmt->execute()) {
+if ($result) {
     echo json_encode(["success" => true, "message" => "Translation saved successfully."]);
 } else {
     echo json_encode(["success" => false, "message" => "Failed to save translation."]);
 }
 
-$conn->close();
+pg_close($conn);
 ?>
