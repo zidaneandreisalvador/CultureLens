@@ -40,7 +40,7 @@ export const RegisterScreen = ({ onRegister }: RegisterScreenProps) => {
     setLoading(true);
 
     try {
-      const res = await fetch('https://culturelens-api.onrender.com/register.php', {
+      const res = await fetch('https://culturelens-api.onrender.com/endpoints/register.php', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),
