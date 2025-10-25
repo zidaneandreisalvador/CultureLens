@@ -31,7 +31,7 @@ if ($method === "POST") {
     }
 
     // Check if already saved
-    $check = $conn->prepare("SELECT * FROM SavedTrips WHERE TravelerID = ? AND ItineraryID = ?");
+    $check = $conn->prepare("SELECT * FROM savedtrips WHERE TravelerID = ? AND ItineraryID = ?");
     $check->bind_param("ii", $userData->user_id, $itineraryID);
     $check->execute();
     $res = $check->get_result();
@@ -42,7 +42,7 @@ if ($method === "POST") {
     }
 
     // Save new favorite trip
-    $stmt = $conn->prepare("INSERT INTO SavedTrips (TravelerID, ItineraryID, SavedAt) VALUES (?, ?, NOW())");
+    $stmt = $conn->prepare("INSERT INTO savedtrips (TravelerID, ItineraryID, SavedAt) VALUES (?, ?, NOW())");
     $stmt->bind_param("ii", $userData->user_id, $itineraryID);
 
     if ($stmt->execute()) {
@@ -55,8 +55,8 @@ elseif ($method === "GET") {
     // Retrieve saved trips
     $stmt = $conn->prepare("
         SELECT s.SavedTripID, i.Destination, i.TravelDates, i.Budget, i.Interests, s.SavedAt
-        FROM SavedTrips s
-        JOIN Itinerary i ON s.ItineraryID = i.ItineraryID
+        FROM savedtrips s
+        JOIN itinerary i ON s.ItineraryID = i.ItineraryID
         WHERE s.TravelerID = ?
         ORDER BY s.SavedAt DESC
     ");
