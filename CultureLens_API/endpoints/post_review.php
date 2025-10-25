@@ -13,7 +13,6 @@ if (!$authHeader) {
 
 $token = str_replace("Bearer ", "", $authHeader);
 $userData = verifyToken($token);
-
 if (!$userData) {
     echo json_encode(["success" => false, "message" => "Invalid or expired token."]);
     exit;
@@ -30,22 +29,14 @@ if (empty($targetType) || empty($targetID) || empty($rating)) {
     exit;
 }
 
-$sql = 'INSERT INTO "Review" ("TravelerID", "TargetType", "TargetID", "Rating", "Comment", "DatePosted")
-        VALUES ($1, $2, $3, $4, $5, NOW())';
+$stmt = $conn->prepare("INSERT INTO Review (TravelerID, TargetType, TargetID, Rating, Comment, DatePosted) VALUES (?, ?, ?, ?, ?, NOW())");
+$stmt->bind_param("isiss", $userData->user_id, $targetType, $targetID, $rating, $comment);
 
-$result = pg_query_params($conn, $sql, [
-    $userData->user_id,
-    $targetType,
-    $targetID,
-    $rating,
-    $comment
-]);
-
-if ($result) {
+if ($stmt->execute()) {
     echo json_encode(["success" => true, "message" => "Review submitted successfully!"]);
 } else {
     echo json_encode(["success" => false, "message" => "Failed to submit review."]);
 }
 
-pg_close($conn);
+$conn->close();
 ?>
