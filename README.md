@@ -1,2 +1,4 @@
-# CultureLens
-AI Travel Buddy and Culture Guide Application
+## Getting Started
+
+1. Run `npm install`
+2. Run `npm run dev`
