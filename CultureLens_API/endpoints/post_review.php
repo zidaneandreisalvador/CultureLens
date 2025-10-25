@@ -29,7 +29,7 @@ if (empty($targetType) || empty($targetID) || empty($rating)) {
     exit;
 }
 
-$stmt = $conn->prepare("INSERT INTO Review (TravelerID, TargetType, TargetID, Rating, Comment, DatePosted) VALUES (?, ?, ?, ?, ?, NOW())");
+$stmt = $conn->prepare("INSERT INTO review (TravelerID, TargetType, TargetID, Rating, Comment, DatePosted) VALUES (?, ?, ?, ?, ?, NOW())");
 $stmt->bind_param("isiss", $userData->user_id, $targetType, $targetID, $rating, $comment);
 
 if ($stmt->execute()) {
