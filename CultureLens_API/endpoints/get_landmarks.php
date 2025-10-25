@@ -5,12 +5,12 @@ include("../config/db_connect.php");
 $countryID = $_GET["country_id"] ?? null;
 
 if ($countryID) {
-    $stmt = $conn->prepare("SELECT * FROM Landmark WHERE CountryID = ?");
+    $stmt = $conn->prepare("SELECT * FROM landmark WHERE CountryID = ?");
     $stmt->bind_param("i", $countryID);
     $stmt->execute();
     $result = $stmt->get_result();
 } else {
-    $result = $conn->query("SELECT * FROM Landmark");
+    $result = $conn->query("SELECT * FROM landmark");
 }
 
 $landmarks = [];
