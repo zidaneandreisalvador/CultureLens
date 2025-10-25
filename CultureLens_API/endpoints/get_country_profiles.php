@@ -18,28 +18,27 @@ if (!$userData) {
     exit;
 }
 
-try {
-    $stmt = $conn->prepare("SELECT * FROM Country");
-    $stmt->execute();
+// Retrieve all country profiles
+$sql = "SELECT * FROM Country";
+$result = $conn->query($sql);
 
-    $countries = [];
-    while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-        $countries[] = [
-            "CountryID" => $row["countryid"],
-            "CountryName" => $row["countryname"],
-            "Traditions" => $row["traditions"],
-            "Festivals" => $row["festivals"],
-            "DressCode" => $row["dresscode"],
-            "Greetings" => $row["greetings"]
-        ];
-    }
-
-    echo json_encode([
-        "success" => true,
-        "count" => count($countries),
-        "countries" => $countries
-    ]);
-} catch (PDOException $e) {
-    echo json_encode(["success" => false, "message" => $e->getMessage()]);
+$countries = [];
+while ($row = $result->fetch_assoc()) {
+    $countries[] = [
+        "CountryID" => $row["CountryID"],
+        "CountryName" => $row["CountryName"],
+        "Traditions" => $row["Traditions"],
+        "Festivals" => $row["Festivals"],
+        "DressCode" => $row["DressCode"],
+        "Greetings" => $row["Greetings"]
+    ];
 }
+
+echo json_encode([
+    "success" => true,
+    "count" => count($countries),
+    "countries" => $countries
+]);
+
+$conn->close();
 ?>
