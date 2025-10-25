@@ -20,7 +20,7 @@ if (!$userData) {
 }
 
 // Get notifications for traveler
-$sql = "SELECT * FROM Notification WHERE TravelerID = ? ORDER BY DateTime DESC";
+$sql = "SELECT * FROM notification WHERE TravelerID = ? ORDER BY DateTime DESC";
 $stmt = $conn->prepare($sql);
 $stmt->bind_param("i", $userData->user_id);
 $stmt->execute();
