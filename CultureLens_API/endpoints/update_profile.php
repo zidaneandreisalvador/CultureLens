@@ -42,7 +42,7 @@ if (empty($updates)) {
     exit;
 }
 
-$sql = "UPDATE User SET " . implode(", ", $updates) . " WHERE UserID = ?";
+$sql = "UPDATE user SET " . implode(", ", $updates) . " WHERE UserID = ?";
 $params[] = $userData->user_id;
 $types .= "i";
 
