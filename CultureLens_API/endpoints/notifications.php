@@ -20,14 +20,16 @@ if (!$userData) {
 }
 
 // Get notifications for traveler
-$sql = "SELECT * FROM Notification WHERE TravelerID = ? ORDER BY DateTime DESC";
-$stmt = $conn->prepare($sql);
-$stmt->bind_param("i", $userData->user_id);
-$stmt->execute();
-$result = $stmt->get_result();
+$sql = "SELECT * FROM \"Notification\" WHERE \"TravelerID\" = $1 ORDER BY \"DateTime\" DESC";
+$result = pg_query_params($conn, $sql, [$userData->user_id]);
+
+if (!$result) {
+    echo json_encode(["success" => false, "message" => "Database query failed."]);
+    exit;
+}
 
 $notifications = [];
-while ($row = $result->fetch_assoc()) {
+while ($row = pg_fetch_assoc($result)) {
     $notifications[] = [
         "NotificationID" => $row["NotificationID"],
         "Message" => $row["Message"],
@@ -42,5 +44,5 @@ echo json_encode([
     "notifications" => $notifications
 ]);
 
-$conn->close();
+pg_close($conn);
 ?>
