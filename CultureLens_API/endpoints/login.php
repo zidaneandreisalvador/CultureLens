@@ -12,43 +12,39 @@ if (empty($email) || empty($password)) {
     exit;
 }
 
-try {
-    // Use lowercase table/column names to match PostgreSQL naming conventions
-    $stmt = $conn->prepare("SELECT * FROM users WHERE email = :email");
-    $stmt->bindParam(":email", $email, PDO::PARAM_STR);
-    $stmt->execute();
-    $user = $stmt->fetch(PDO::FETCH_ASSOC);
+$stmt = $conn->prepare("SELECT * FROM User WHERE Email = ?");
+$stmt->bind_param("s", $email);
+$stmt->execute();
+$result = $stmt->get_result();
 
-    if ($user) {
-        if (password_verify($password, $user["password"])) {
-            $token = createToken(
-                $user["userid"],
-                $user["usertype"],
-                $user["firstname"],
-                $user["lastname"]
-            );
+if ($result->num_rows === 1) {
+    $user = $result->fetch_assoc();
 
-            echo json_encode([
-                "success" => true,
-                "message" => "Login successful.",
-                "token" => $token,
-                "user" => [
-                    "UserID" => $user["userid"],
-                    "FirstName" => $user["firstname"],
-                    "LastName" => $user["lastname"],
-                    "UserType" => $user["usertype"]
-                ]
-            ]);
-        } else {
-            echo json_encode(["success" => false, "message" => "Invalid password."]);
-        }
+    if (password_verify($password, $user["Password"])) {
+        $token = createToken(
+            $user["UserID"],
+            $user["UserType"],
+            $user["FirstName"],
+            $user["LastName"]
+        );
+
+        echo json_encode([
+            "success" => true,
+            "message" => "Login successful.",
+            "token" => $token,
+            "user" => [
+                "UserID" => $user["UserID"],
+                "FirstName" => $user["FirstName"],
+                "LastName" => $user["LastName"],
+                "UserType" => $user["UserType"]
+            ]
+        ]);
     } else {
-        echo json_encode(["success" => false, "message" => "User not found."]);
+        echo json_encode(["success" => false, "message" => "Invalid password."]);
     }
-} catch (PDOException $e) {
-    echo json_encode([
-        "success" => false,
-        "message" => "Database error: " . $e->getMessage()
-    ]);
+} else {
+    echo json_encode(["success" => false, "message" => "User not found."]);
 }
+
+$conn->close();
 ?>
