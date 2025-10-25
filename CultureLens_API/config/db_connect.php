@@ -1,19 +1,15 @@
 <?php
-// config/db_connect.php
+$servername = "mainline.proxy.rlwy.net";
+$username   = "root";
+$password   = "PQGrmTSwYIweYnxtUjwAtNbuCthfnqvj";
+$database   = "railway";
+$port       = 25859;
 
-$host = "localhost";      // Database host
-$user = "root";           // Default XAMPP user
-$pass = "";               // Default password (empty)
-$dbname = "culturelens_db"; // The database you created
+$conn = new mysqli($servername, $username, $password, $database, $port);
 
-// Create connection
-$conn = new mysqli($host, $user, $pass, $dbname);
-
-// Check connection
 if ($conn->connect_error) {
-    die(json_encode([
-        "success" => false,
-        "message" => "Database connection failed: " . $conn->connect_error
-    ]));
+    die("Connection failed: " . $conn->connect_error);
+} else {
+    echo "✅ Connected successfully to Railway MySQL!";
 }
 ?>
