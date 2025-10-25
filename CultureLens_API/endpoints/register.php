@@ -10,7 +10,6 @@ $password = $data["password"] ?? '';
 $firstName = $data["first_name"] ?? '';
 $lastName = $data["last_name"] ?? '';
 $contactNumber = $data["contact_number"] ?? '';
-$preferredLanguage = $data["preferred_language"] ?? '';
 $userType = $data["user_type"] ?? 'Traveler'; // Default is Traveler
 
 // Validate input
@@ -33,9 +32,9 @@ if ($result->num_rows > 0) {
 // Hash the password
 $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
 
-// Insert into User table
-$stmt = $conn->prepare("INSERT INTO User (Email, Password, FirstName, LastName, ContactNumber, PreferredLanguage, UserType) VALUES (?, ?, ?, ?, ?, ?, ?)");
-$stmt->bind_param("sssssss", $email, $hashedPassword, $firstName, $lastName, $contactNumber, $preferredLanguage, $userType);
+// Insert into User table (without PreferredLanguage)
+$stmt = $conn->prepare("INSERT INTO User (Email, Password, FirstName, LastName, ContactNumber, UserType) VALUES (?, ?, ?, ?, ?, ?)");
+$stmt->bind_param("ssssss", $email, $hashedPassword, $firstName, $lastName, $contactNumber, $userType);
 
 if ($stmt->execute()) {
     $userId = $conn->insert_id;
