@@ -2,38 +2,31 @@
 header("Content-Type: application/json");
 include("../config/db_connect.php");
 
-try {
-    $sql = "
-        SELECT t.storyid, t.title, t.content, t.dateposted, 
-               u.firstname, u.lastname
-        FROM travelstory t
-        JOIN traveler tr ON t.travelerid = tr.travelerid
-        JOIN users u ON tr.userid = u.userid
-        ORDER BY t.dateposted DESC
-    ";
+$sql = "SELECT t.StoryID, t.Title, t.Content, t.DatePosted, 
+               u.FirstName, u.LastName 
+        FROM TravelStory t
+        JOIN Traveler tr ON t.TravelerID = tr.TravelerID
+        JOIN User u ON tr.UserID = u.UserID
+        ORDER BY t.DatePosted DESC";
 
-    $stmt = $conn->query($sql);
-    $stories = [];
+$result = $conn->query($sql);
+$stories = [];
 
-    while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-        $stories[] = [
-            "StoryID" => $row["storyid"],
-            "Title" => $row["title"],
-            "Content" => $row["content"],
-            "Author" => $row["firstname"] . " " . $row["lastname"],
-            "DatePosted" => $row["dateposted"]
-        ];
-    }
-
-    echo json_encode([
-        "success" => true,
-        "count" => count($stories),
-        "stories" => $stories
-    ]);
-} catch (PDOException $e) {
-    echo json_encode([
-        "success" => false,
-        "message" => "Database error: " . $e->getMessage()
-    ]);
+while ($row = $result->fetch_assoc()) {
+    $stories[] = [
+        "StoryID" => $row["StoryID"],
+        "Title" => $row["Title"],
+        "Content" => $row["Content"],
+        "Author" => $row["FirstName"] . " " . $row["LastName"],
+        "DatePosted" => $row["DatePosted"]
+    ];
 }
+
+echo json_encode([
+    "success" => true,
+    "count" => count($stories),
+    "stories" => $stories
+]);
+
+$conn->close();
 ?>
