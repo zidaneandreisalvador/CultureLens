@@ -29,7 +29,7 @@ if (empty($title) || empty($content)) {
     exit;
 }
 
-$stmt = $conn->prepare("INSERT INTO TravelStory (TravelerID, Title, Content, DatePosted) VALUES (?, ?, ?, NOW())");
+$stmt = $conn->prepare("INSERT INTO travelstory (TravelerID, Title, Content, DatePosted) VALUES (?, ?, ?, NOW())");
 $stmt->bind_param("iss", $userData->user_id, $title, $content);
 $success = $stmt->execute();
 
