@@ -12,7 +12,7 @@ if (empty($email) || empty($password)) {
     exit;
 }
 
-$stmt = $conn->prepare("SELECT * FROM User WHERE Email = ?");
+$stmt = $conn->prepare("SELECT * FROM user WHERE Email = ?");
 $stmt->bind_param("s", $email);
 $stmt->execute();
 $result = $stmt->get_result();
