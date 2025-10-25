@@ -31,7 +31,7 @@ if (empty($inputText) || empty($outputText)) {
     exit;
 }
 
-$stmt = $conn->prepare("INSERT INTO TranslationLog (TravelerID, InputText, OutputText, SourceLanguage, TargetLanguage, DateTime)
+$stmt = $conn->prepare("INSERT INTO translationlog (TravelerID, InputText, OutputText, SourceLanguage, TargetLanguage, DateTime)
                         VALUES (?, ?, ?, ?, ?, NOW())");
 $stmt->bind_param("issss", $userData->user_id, $inputText, $outputText, $sourceLanguage, $targetLanguage);
 
