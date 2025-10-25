@@ -1,6 +1,6 @@
 <?php
 header("Content-Type: application/json");
-include("../config/db_connect.php"); // Must now use PDO (PostgreSQL)
+include("../config/db_connect.php");
 include("../utils/auth.php");
 
 $headers = getallheaders();
@@ -33,14 +33,10 @@ if ($method === "POST") {
         exit;
     }
 
-    // 🔒 Use environment variable for OpenAI key
-    $apiKey = getenv("OPENAI_API_KEY");
-    if (!$apiKey) {
-        echo json_encode(["success" => false, "message" => "Missing OpenAI API key."]);
-        exit;
-    }
+    // 🔒 Insert your own API key here
+    $apiKey = "";
 
-    // 🧠 If prompt is provided, generate AI itinerary
+    // If a prompt is provided, generate itinerary using AI
     $generatedItinerary = null;
     if (!empty($prompt)) {
         $payload = json_encode([
@@ -52,15 +48,13 @@ if ($method === "POST") {
         ]);
 
         $ch = curl_init("https://api.openai.com/v1/chat/completions");
-        curl_setopt_array($ch, [
-            CURLOPT_HTTPHEADER => [
-                "Content-Type: application/json",
-                "Authorization: Bearer $apiKey"
-            ],
-            CURLOPT_POST => 1,
-            CURLOPT_POSTFIELDS => $payload,
-            CURLOPT_RETURNTRANSFER => true
+        curl_setopt($ch, CURLOPT_HTTPHEADER, [
+            "Content-Type: application/json",
+            "Authorization: " . "Bearer " . $apiKey
         ]);
+        curl_setopt($ch, CURLOPT_POST, 1);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $payload);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         $result = curl_exec($ch);
         curl_close($ch);
 
@@ -68,48 +62,37 @@ if ($method === "POST") {
         $generatedItinerary = $aiResponse["choices"][0]["message"]["content"] ?? "No itinerary generated.";
     }
 
-    // 🗂️ Store itinerary (PostgreSQL version)
-    try {
-        $stmt = $conn->prepare("
-            INSERT INTO Itinerary (TravelerID, Destination, TravelDates, Budget, Interests)
-            VALUES (:traveler, :dest, :dates, :budget, :interests)
-            RETURNING ItineraryID
-        ");
-        $stmt->execute([
-            ":traveler" => $userData->user_id,
-            ":dest" => $destination,
-            ":dates" => $travelDates,
-            ":budget" => $budget,
-            ":interests" => $interests
-        ]);
-        $itineraryID = $stmt->fetchColumn();
+    // Store itinerary (AI-generated or user-provided)
+    $stmt = $conn->prepare("INSERT INTO Itinerary (TravelerID, Destination, TravelDates, Budget, Interests)
+                            VALUES (?, ?, ?, ?, ?)");
+    $stmt->bind_param("issds", $userData->user_id, $destination, $travelDates, $budget, $interests);
+    $stmt->execute();
+    $itineraryID = $stmt->insert_id;
 
-        echo json_encode([
-            "success" => true,
-            "message" => "Itinerary saved successfully.",
-            "itinerary_id" => $itineraryID,
-            "ai_generated_plan" => $generatedItinerary
-        ]);
-    } catch (PDOException $e) {
-        echo json_encode(["success" => false, "message" => "Database error: " . $e->getMessage()]);
-    }
+    echo json_encode([
+        "success" => true,
+        "message" => "Itinerary saved successfully.",
+        "itinerary_id" => $itineraryID,
+        "ai_generated_plan" => $generatedItinerary
+    ]);
 }
-
 elseif ($method === "GET") {
-    try {
-        $stmt = $conn->prepare("SELECT * FROM Itinerary WHERE TravelerID = :traveler");
-        $stmt->execute([":traveler" => $userData->user_id]);
-        $plans = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    $stmt = $conn->prepare("SELECT * FROM Itinerary WHERE TravelerID = ?");
+    $stmt->bind_param("i", $userData->user_id);
+    $stmt->execute();
+    $result = $stmt->get_result();
 
-        echo json_encode([
-            "success" => true,
-            "count" => count($plans),
-            "itineraries" => $plans
-        ]);
-    } catch (PDOException $e) {
-        echo json_encode(["success" => false, "message" => "Database fetch error: " . $e->getMessage()]);
+    $plans = [];
+    while ($row = $result->fetch_assoc()) {
+        $plans[] = $row;
     }
+
+    echo json_encode([
+        "success" => true,
+        "count" => count($plans),
+        "itineraries" => $plans
+    ]);
 }
+
+$conn->close();
 ?>
-
-
