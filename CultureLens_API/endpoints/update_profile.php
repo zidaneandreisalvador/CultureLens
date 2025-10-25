@@ -5,15 +5,14 @@ include("../utils/auth.php");
 
 $headers = getallheaders();
 $authHeader = $headers["Authorization"] ?? "";
-
 if (!$authHeader) {
     echo json_encode(["success" => false, "message" => "Missing Authorization header."]);
     exit;
 }
 
+// Verify token
 $token = str_replace("Bearer ", "", $authHeader);
 $userData = verifyToken($token);
-
 if (!$userData) {
     echo json_encode(["success" => false, "message" => "Invalid or expired token."]);
     exit;
@@ -26,19 +25,22 @@ $newPassword = $data["new_password"] ?? null;
 
 $updates = [];
 $params = [];
-$index = 1; // for PostgreSQL $1, $2, etc.
+$types = "";
 
 if ($contact) {
-    $updates[] = "ContactNumber = $" . $index++;
+    $updates[] = "ContactNumber = ?";
     $params[] = $contact;
+    $types .= "s";
 }
 if ($language) {
-    $updates[] = "PreferredLanguage = $" . $index++;
+    $updates[] = "PreferredLanguage = ?";
     $params[] = $language;
+    $types .= "s";
 }
 if ($newPassword) {
-    $updates[] = "Password = $" . $index++;
+    $updates[] = "Password = ?";
     $params[] = password_hash($newPassword, PASSWORD_DEFAULT);
+    $types .= "s";
 }
 
 if (empty($updates)) {
@@ -46,17 +48,18 @@ if (empty($updates)) {
     exit;
 }
 
-// Add WHERE clause
-$sql = "UPDATE \"User\" SET " . implode(", ", $updates) . " WHERE UserID = $" . $index;
+$sql = "UPDATE User SET " . implode(", ", $updates) . " WHERE UserID = ?";
 $params[] = $userData->user_id;
+$types .= "i";
 
-$result = pg_query_params($conn, $sql, $params);
+$stmt = $conn->prepare($sql);
+$stmt->bind_param($types, ...$params);
 
-if ($result) {
+if ($stmt->execute()) {
     echo json_encode(["success" => true, "message" => "Profile updated successfully."]);
 } else {
     echo json_encode(["success" => false, "message" => "Failed to update profile."]);
 }
 
-pg_close($conn);
+$conn->close();
 ?>
