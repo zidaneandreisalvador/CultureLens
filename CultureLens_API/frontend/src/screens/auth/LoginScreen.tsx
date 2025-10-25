@@ -18,7 +18,7 @@ export const LoginScreen = ({ onLogin }: LoginScreenProps) => {
     setLoading(true);
 
     try {
-      const res = await fetch('https://culturelens-api.onrender.com/login.php', {
+      const res = await fetch('https://culturelens-api.onrender.com/endpoints/login.php', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password }),
