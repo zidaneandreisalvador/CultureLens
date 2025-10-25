@@ -20,7 +20,6 @@ if (!$userData) {
 
 $data = json_decode(file_get_contents("php://input"), true);
 $contact = $data["contact_number"] ?? null;
-$language = $data["preferred_language"] ?? null;
 $newPassword = $data["new_password"] ?? null;
 
 $updates = [];
@@ -30,11 +29,6 @@ $types = "";
 if ($contact) {
     $updates[] = "ContactNumber = ?";
     $params[] = $contact;
-    $types .= "s";
-}
-if ($language) {
-    $updates[] = "PreferredLanguage = ?";
-    $params[] = $language;
     $types .= "s";
 }
 if ($newPassword) {
