@@ -5,10 +5,10 @@ include("../config/db_connect.php");
 // Optional: ?type=about / contact / faq
 $type = strtolower($_GET["type"] ?? "about");
 
-// If you have a table called "AppInfo"
-if ($result = $conn->query("SHOW TABLES LIKE 'AppInfo'")) {
+// If you have a table called "appinfo"
+if ($result = $conn->query("SHOW TABLES LIKE 'appinfo'")) {
     if ($result->num_rows > 0) {
-        $stmt = $conn->prepare("SELECT * FROM AppInfo WHERE InfoType = ?");
+        $stmt = $conn->prepare("SELECT * FROM appinfo WHERE InfoType = ?");
         $stmt->bind_param("s", $type);
         $stmt->execute();
         $res = $stmt->get_result();
