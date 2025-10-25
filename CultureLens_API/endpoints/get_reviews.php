@@ -10,31 +10,40 @@ if (empty($targetType) || empty($targetID)) {
     exit;
 }
 
-$stmt = $conn->prepare("SELECT r.Rating, r.Comment, r.DatePosted, u.FirstName, u.LastName 
-                        FROM Review r
-                        JOIN Traveler t ON r.TravelerID = t.TravelerID
-                        JOIN User u ON t.UserID = u.UserID
-                        WHERE r.TargetType = ? AND r.TargetID = ?
-                        ORDER BY r.DatePosted DESC");
-$stmt->bind_param("si", $targetType, $targetID);
-$stmt->execute();
-$result = $stmt->get_result();
+try {
+    $stmt = $conn->prepare("
+        SELECT r.rating, r.comment, r.dateposted, u.firstname, u.lastname 
+        FROM review r
+        JOIN traveler t ON r.travelerid = t.travelerid
+        JOIN users u ON t.userid = u.userid
+        WHERE r.targettype = :targettype AND r.targetid = :targetid
+        ORDER BY r.dateposted DESC
+    ");
 
-$reviews = [];
-while ($row = $result->fetch_assoc()) {
-    $reviews[] = [
-        "Author" => $row["FirstName"] . " " . $row["LastName"],
-        "Rating" => $row["Rating"],
-        "Comment" => $row["Comment"],
-        "DatePosted" => $row["DatePosted"]
-    ];
+    $stmt->bindParam(":targettype", $targetType, PDO::PARAM_STR);
+    $stmt->bindParam(":targetid", $targetID, PDO::PARAM_INT);
+    $stmt->execute();
+
+    $reviews = [];
+    while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+        $reviews[] = [
+            "Author" => $row["firstname"] . " " . $row["lastname"],
+            "Rating" => $row["rating"],
+            "Comment" => $row["comment"],
+            "DatePosted" => $row["dateposted"]
+        ];
+    }
+
+    echo json_encode([
+        "success" => true,
+        "count" => count($reviews),
+        "reviews" => $reviews
+    ]);
+
+} catch (PDOException $e) {
+    echo json_encode([
+        "success" => false,
+        "message" => $e->getMessage()
+    ]);
 }
-
-echo json_encode([
-    "success" => true,
-    "count" => count($reviews),
-    "reviews" => $reviews
-]);
-
-$conn->close();
 ?>
