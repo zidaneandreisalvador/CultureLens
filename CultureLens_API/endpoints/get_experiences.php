@@ -4,31 +4,37 @@ include("../config/db_connect.php");
 
 $countryID = $_GET["country_id"] ?? null;
 
-if ($countryID) {
-    $stmt = $conn->prepare("SELECT * FROM Experience WHERE CountryID = ?");
-    $stmt->bind_param("i", $countryID);
-    $stmt->execute();
-    $result = $stmt->get_result();
-} else {
-    $result = $conn->query("SELECT * FROM Experience");
+try {
+    if ($countryID) {
+        // Use prepared statement with parameter
+        $stmt = $conn->prepare("SELECT * FROM experience WHERE countryid = :countryid");
+        $stmt->bindParam(":countryid", $countryID, PDO::PARAM_INT);
+        $stmt->execute();
+    } else {
+        $stmt = $conn->prepare("SELECT * FROM experience");
+        $stmt->execute();
+    }
+
+    $experiences = [];
+    while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+        $experiences[] = [
+            "ExperienceID" => $row["experienceid"],
+            "CountryID" => $row["countryid"],
+            "ExperienceName" => $row["experiencename"],
+            "Description" => $row["description"]
+        ];
+    }
+
+    echo json_encode([
+        "success" => true,
+        "count" => count($experiences),
+        "experiences" => $experiences
+    ]);
+
+} catch (PDOException $e) {
+    echo json_encode([
+        "success" => false,
+        "message" => $e->getMessage()
+    ]);
 }
-
-$experiences = [];
-
-while ($row = $result->fetch_assoc()) {
-    $experiences[] = [
-        "ExperienceID" => $row["ExperienceID"],
-        "CountryID" => $row["CountryID"],
-        "ExperienceName" => $row["ExperienceName"],
-        "Description" => $row["Description"]
-    ];
-}
-
-echo json_encode([
-    "success" => true,
-    "count" => count($experiences),
-    "experiences" => $experiences
-]);
-
-$conn->close();
 ?>
