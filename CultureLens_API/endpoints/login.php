@@ -1,54 +1,58 @@
 <?php
-header("Content-Type: application/json");
 header("Access-Control-Allow-Origin: *");
-header("Access-Control-Allow-Methods: GET, POST, OPTIONS");
+header("Content-Type: application/json");
+header("Access-Control-Allow-Methods: POST");
 header("Access-Control-Allow-Headers: Content-Type, Authorization");
-include("../config/db_connect.php");
-include("../utils/auth.php");
 
-$data = json_decode(file_get_contents("php://input"), true);
-$email = $data["email"] ?? '';
-$password = $data["password"] ?? '';
+include("../config/db_connect.php"); // your DB connection
 
-if (empty($email) || empty($password)) {
-    echo json_encode(["success" => false, "message" => "Email and password are required."]);
+// Read JSON input
+$data = json_decode(file_get_contents('php://input'), true);
+
+if (!$data) {
+    echo json_encode(['success' => false, 'message' => 'Invalid input']);
     exit;
 }
 
-$stmt = $conn->prepare("SELECT * FROM user WHERE Email = ?");
+$email = $data['email'] ?? '';
+$password = $data['password'] ?? '';
+
+if (!$email || !$password) {
+    echo json_encode(['success' => false, 'message' => 'Email and password are required']);
+    exit;
+}
+
+// Check if user exists
+$stmt = $conn->prepare("SELECT id, first_name, last_name, password, contact_number, preferred_language, user_type FROM users WHERE email = ?");
 $stmt->bind_param("s", $email);
 $stmt->execute();
 $result = $stmt->get_result();
 
-if ($result->num_rows === 1) {
-    $user = $result->fetch_assoc();
-
-    if (password_verify($password, $user["Password"])) {
-        $token = createToken(
-            $user["UserID"],
-            $user["UserType"],
-            $user["FirstName"],
-            $user["LastName"]
-        );
-
-        echo json_encode([
-            "success" => true,
-            "message" => "Login successful.",
-            "token" => $token,
-            "user" => [
-                "UserID" => $user["UserID"],
-                "FirstName" => $user["FirstName"],
-                "LastName" => $user["LastName"],
-                "UserType" => $user["UserType"]
-            ]
-        ]);
-    } else {
-        echo json_encode(["success" => false, "message" => "Invalid password."]);
-    }
-} else {
-    echo json_encode(["success" => false, "message" => "User not found."]);
+if ($result->num_rows === 0) {
+    echo json_encode(['success' => false, 'message' => 'Email not found']);
+    exit;
 }
 
-$conn->close();
-?>
+$user = $result->fetch_assoc();
 
+// Verify password
+if (!password_verify($password, $user['password'])) {
+    echo json_encode(['success' => false, 'message' => 'Incorrect password']);
+    exit;
+}
+
+// Remove password before sending back
+unset($user['password']);
+
+// Optional: Generate token (JWT or simple random string) if needed
+$token = bin2hex(random_bytes(16)); // temporary token
+
+echo json_encode([
+    'success' => true,
+    'message' => 'Login successful',
+    'token' => $token,
+    'user' => $user
+]);
+
+$stmt->close();
+$conn->close();
