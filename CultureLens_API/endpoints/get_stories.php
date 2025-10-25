@@ -4,9 +4,9 @@ include("../config/db_connect.php");
 
 $sql = "SELECT t.StoryID, t.Title, t.Content, t.DatePosted, 
                u.FirstName, u.LastName 
-        FROM TravelStory t
-        JOIN Traveler tr ON t.TravelerID = tr.TravelerID
-        JOIN User u ON tr.UserID = u.UserID
+        FROM travelstory t
+        JOIN traveler tr ON t.TravelerID = tr.TravelerID
+        JOIN user u ON tr.UserID = u.UserID
         ORDER BY t.DatePosted DESC";
 
 $result = $conn->query($sql);
