@@ -11,9 +11,9 @@ if (empty($targetType) || empty($targetID)) {
 }
 
 $stmt = $conn->prepare("SELECT r.Rating, r.Comment, r.DatePosted, u.FirstName, u.LastName 
-                        FROM Review r
-                        JOIN Traveler t ON r.TravelerID = t.TravelerID
-                        JOIN User u ON t.UserID = u.UserID
+                        FROM review r
+                        JOIN traveler t ON r.TravelerID = t.TravelerID
+                        JOIN user u ON t.UserID = u.UserID
                         WHERE r.TargetType = ? AND r.TargetID = ?
                         ORDER BY r.DatePosted DESC");
 $stmt->bind_param("si", $targetType, $targetID);
