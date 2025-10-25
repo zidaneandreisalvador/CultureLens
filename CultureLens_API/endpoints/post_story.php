@@ -29,26 +29,20 @@ if (empty($title) || empty($content)) {
     exit;
 }
 
-// Insert story into PostgreSQL
-$sql = 'INSERT INTO "TravelStory" ("TravelerID", "Title", "Content", "DatePosted") 
-        VALUES ($1, $2, $3, NOW()) RETURNING "StoryID"';
+$stmt = $conn->prepare("INSERT INTO TravelStory (TravelerID, Title, Content, DatePosted) VALUES (?, ?, ?, NOW())");
+$stmt->bind_param("iss", $userData->user_id, $title, $content);
+$success = $stmt->execute();
 
-$result = pg_query_params($conn, $sql, [
-    $userData->user_id,
-    $title,
-    $content
-]);
-
-if ($result && pg_num_rows($result) > 0) {
-    $row = pg_fetch_assoc($result);
+if ($success) {
+    $story_id = $conn->insert_id;
     echo json_encode([
         "success" => true,
         "message" => "Story posted successfully!",
-        "story_id" => $row["StoryID"]
+        "story_id" => $story_id
     ]);
 } else {
     echo json_encode(["success" => false, "message" => "Failed to post story."]);
 }
 
-pg_close($conn);
+$conn->close();
 ?>
