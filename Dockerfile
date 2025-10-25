@@ -1,17 +1,20 @@
-# Use the official PHP image with Apache
+# Use official PHP image
 FROM php:8.2-apache
 
 # Set working directory inside the container
 WORKDIR /var/www/html
 
-# Copy the entire CultureLens_API folder into the container
-COPY CultureLens_API/ /var/www/html/
+# Copy everything from your repo into the container
+COPY . /var/www/html/
 
-# Enable mysqli for MySQL database connection
+# Set document root to CultureLens_API (where your code is)
+WORKDIR /var/www/html/CultureLens_API
+
+# Enable mysqli for MySQL connection
 RUN docker-php-ext-install mysqli
 
 # Expose Render's port
 EXPOSE 10000
 
-# Start PHP built-in server (Render expects this)
-CMD ["php", "-S", "0.0.0.0:10000", "-t", "/var/www/html"]
+# Start the PHP built-in server pointing to CultureLens_API
+CMD ["php", "-S", "0.0.0.0:10000", "-t", "/var/www/html/CultureLens_API"]
