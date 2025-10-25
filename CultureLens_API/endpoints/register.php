@@ -24,7 +24,7 @@ if (empty($email) || empty($password) || empty($firstName) || empty($lastName)) 
 }
 
 // Check if user already exists
-$check = $conn->prepare("SELECT * FROM User WHERE Email = ?");
+$check = $conn->prepare("SELECT * FROM user WHERE Email = ?");
 $check->bind_param("s", $email);
 $check->execute();
 $result = $check->get_result();
@@ -37,17 +37,17 @@ if ($result->num_rows > 0) {
 // Hash the password
 $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
 
-// Insert into User table
-$stmt = $conn->prepare("INSERT INTO User (Email, Password, FirstName, LastName, ContactNumber, PreferredLanguage, UserType) VALUES (?, ?, ?, ?, ?, ?, ?)");
+// Insert into user table
+$stmt = $conn->prepare("INSERT INTO user (Email, Password, FirstName, LastName, ContactNumber, PreferredLanguage, UserType) VALUES (?, ?, ?, ?, ?, ?, ?)");
 $stmt->bind_param("sssssss", $email, $hashedPassword, $firstName, $lastName, $contactNumber, $preferredLanguage, $userType);
 
 if ($stmt->execute()) {
     $userId = $conn->insert_id;
 
     if ($userType === 'Traveler') {
-        $conn->query("INSERT INTO Traveler (UserID) VALUES ($userId)");
+        $conn->query("INSERT INTO traveler (UserID) VALUES ($userId)");
     } else {
-        $conn->query("INSERT INTO Admin (UserID, IDNumber, StartingDate) VALUES ($userId, '', CURDATE())");
+        $conn->query("INSERT INTO admin (UserID, IDNumber, StartingDate) VALUES ($userId, '', CURDATE())");
     }
 
     echo json_encode(["success" => true, "message" => "Registration successful!"]);
@@ -57,4 +57,3 @@ if ($stmt->execute()) {
 
 $conn->close();
 ?>
-
