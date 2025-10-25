@@ -19,7 +19,7 @@ if (!$userData) {
 }
 
 // Retrieve all country profiles
-$sql = "SELECT * FROM Country";
+$sql = "SELECT * FROM country"; // Updated table name
 $result = $conn->query($sql);
 
 $countries = [];
