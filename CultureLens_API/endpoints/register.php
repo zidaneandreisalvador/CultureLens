@@ -1,8 +1,15 @@
 <?php
+// --- CORS setup ---
 header("Access-Control-Allow-Origin: *");
-header("Content-Type: application/json");
-header("Access-Control-Allow-Methods: POST");
+header("Access-Control-Allow-Methods: POST, OPTIONS");
 header("Access-Control-Allow-Headers: Content-Type, Authorization");
+header("Content-Type: application/json");
+
+// Handle preflight OPTIONS request
+if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+    http_response_code(200);
+    exit();
+}
 
 include("../config/db_connect.php"); // make sure this points to your DB connection
 
@@ -36,6 +43,8 @@ $stmt->store_result();
 
 if ($stmt->num_rows > 0) {
     echo json_encode(['success' => false, 'message' => 'Email already exists']);
+    $stmt->close();
+    $conn->close();
     exit;
 }
 
