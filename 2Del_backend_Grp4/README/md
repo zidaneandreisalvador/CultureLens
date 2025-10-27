@@ -1,5 +1,0 @@
-# Supabase Backend
-This project uses Supabase as the backend.  
-Features: Authentication, Database (Tables), and Storage.  
-All backend operations are handled via the Supabase client in the frontend code.  
-No local server setup required.
