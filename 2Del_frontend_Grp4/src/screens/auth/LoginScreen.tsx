@@ -82,15 +82,7 @@ export const LoginScreen = ({ onLogin }: LoginScreenProps) => {
     }
   }
 
-  const handleDemoLogin = () => {
-    localStorage.setItem('isDemoAccount', 'true')
-    localStorage.setItem(
-      'demoUser',
-      JSON.stringify({ name: 'Demo Traveler', email: 'demo@culturelens.com' })
-    )
-    onLogin('Traveler')
-    navigate('/home')
-  }
+ 
 
   return (
     <div className="min-h-screen w-full flex items-center justify-center bg-[#fef7e0] px-6 py-10">
@@ -108,27 +100,12 @@ export const LoginScreen = ({ onLogin }: LoginScreenProps) => {
           Continue your vintage travel adventure
         </p>
 
-        {/* Demo Mode */}
-        <div className="mb-6 p-4 bg-[#f8e398] border-2 border-[#e8c547] rounded-lg">
-          <div className="flex items-center mb-2">
-            <span className="text-lg mr-2">✨</span>
-            <h3 className="font-bold text-[#2f1b14] font-serif">Try Demo Mode</h3>
-          </div>
-          <p className="text-sm text-[#2f1b14] font-serif mb-3">
-            Explore CultureLens without creating an account
-          </p>
-          <button
-            onClick={handleDemoLogin}
-            className="w-full bg-[#2f1b14] text-[#fefcf0] py-2 rounded-lg font-serif font-semibold shadow-md hover:bg-[#1a0f0a] transition-all duration-300"
-          >
-            Enter Demo Mode
-          </button>
-        </div>
+        
 
         {/* Divider */}
         <div className="flex items-center mb-6">
           <div className="flex-1 border-t border-[#d4c4a8]"></div>
-          <span className="px-3 text-[#6d5a42] font-serif text-sm">or</span>
+          
           <div className="flex-1 border-t border-[#d4c4a8]"></div>
         </div>
 
